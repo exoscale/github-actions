@@ -26,13 +26,14 @@ on:
       - "master"
 
 jobs:
-  runs-on: "ubuntu-latest"
-  name: "Sample Actions"
-  steps:
-    - uses: actions/checkout@v2
-    - name: "TAGS update"
-      id: tags
-      uses: exoscale/github-actions@v1
-      with:
-        command: "TAGS.update"
+  "sample-actions":
+    runs-on: ubuntu-latest
+    name: "Sample Actions"
+    steps:
+      - uses: actions/checkout@v2
+      - name: "TAGS update"
+        id: "tags"
+        uses: exoscale/github-actions@v1
+        with:
+          command: "TAGS.update"
 ```
