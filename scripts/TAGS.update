@@ -1,0 +1,63 @@
+#!/bin/bash
+set -e -o pipefail
+SCRIPT="${0##*/}"
+trap "ERROR[${SCRIPT}]: Internal error" ERR
+
+## Usage
+__USAGE() {
+  cat >&2 <<EOF
+USAGE: ${SCRIPT} [<commit|env:GITHUB_SHA>]
+
+SYNOPSIS:
+  Look for changes in the TAGS file for the given commit and update the Git Tags
+  to match the configured Git Commits.
+EOF
+}
+
+# Argument
+# REF: https://docs.github.com/en/actions/reference/environment-variables
+if [ -n "${1}" ]; then
+  TAGS_COMMIT="${1}"
+elif [ -n "${GITHUB_SHA}" ]; then
+  TAGS_COMMIT="${GITHUB_SHA}"
+else
+  __USAGE
+  exit 1
+fi
+
+## Main
+
+# TAGS changed ?
+if [ -z "$(git diff --name-only ${TAGS_COMMIT}~1 ${TAGS_COMMIT} -- ./TAGS)" ]; then
+  echo "INFO[${SCRIPT}]: No TAGS change detected; bailing out"
+  exit 0
+fi
+
+# Update tags
+tagged=0
+grep -vE '^\s*(#|$)' ./TAGS | while read tag commit _; do
+  commit_current="$(git show-ref --hash --tags "refs/tags/${tag}" || true)"
+  if [ "${commit_current}" == "${commit}" ]; then
+    echo "INFO[${SCRIPT}]: Tag '${tag}' already point to commit '${commit}'; skipping"
+    continue
+  fi
+  echo "INFO[${SCRIPT}]: Updating tag '${tag}' to point to commit '${commit}' ..."
+  if [ -n "${DRYRUN}" ] || [ -n "${TAGS_DRYRUN}" ]; then
+    echo "NOTICE[${SCRIPT}]: Dry-running; skipping"
+    continue
+  fi
+  git tag --force "${tag}" "${commit}"
+  tagged=$(( tagged+1 ))
+done
+
+# Push updated tags
+if [ "${tagged}" -gt 0 ]; then
+  echo "INFO[${SCRIPT}]: Pushing updated tags to GitHub ..."
+  if [ -n "${DRYRUN}" ] || [ -n "${TAGS_DRYRUN}" ]; then
+    echo "NOTICE[${SCRIPT}]: Dry-running; bailing out"
+    exit 0
+  fi
+  git push --force --tags
+else
+  echo "INFO[${SCRIPT}]: No tag either updated nor pushed to GitHub"
+fi

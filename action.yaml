@@ -1,0 +1,17 @@
+---
+name: "Exoscale GitHub Actions"
+description: "GitHub Actions for Exoscale repositories"
+author: "Exoscale"
+inputs:
+  command:
+    description: "Action command (script) to run"
+    required: true
+  args:
+    description: "Action command (script) arguments"
+    required: false
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.command }}
+    - ${{ inputs.args }}
