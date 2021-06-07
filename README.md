@@ -37,7 +37,7 @@ jobs:
       # REF: https://github.com/exoscale/github-actions
       - name: "TAGS update"
         id: "tags"
-        uses: exoscale/github-actions@cedric/ch31144/gh-actions
+        uses: exoscale/github-actions@v1
         with:
           command: "TAGS.update"
 ```
