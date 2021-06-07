@@ -26,14 +26,18 @@ on:
       - "master"
 
 jobs:
-  "sample-actions":
+  "test-actions":
     runs-on: ubuntu-latest
-    name: "Sample Actions"
+    name: "Test Actions"
     steps:
+      # REF: https://github.com/actions/checkout
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # allow to reference any commit
+      # REF: https://github.com/exoscale/github-actions
       - name: "TAGS update"
         id: "tags"
-        uses: exoscale/github-actions@v1
+        uses: exoscale/github-actions@cedric/ch31144/gh-actions
         with:
           command: "TAGS.update"
 ```
