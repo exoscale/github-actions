@@ -28,14 +28,14 @@ fi
 ## Main
 
 # TAGS changed ?
-if [ -z "$(git diff --name-only ${TAGS_COMMIT}~1 ${TAGS_COMMIT} -- ./TAGS)" ]; then
+if [ -z "$(git diff --name-only "${TAGS_COMMIT}~1" "${TAGS_COMMIT}" -- ./TAGS)" ]; then
   echo "INFO[${SCRIPT}]: No TAGS change detected; bailing out"
   exit 0
 fi
 
 # Update tags
 tagged=0
-grep -vE '^\s*(#|$)' ./TAGS | while read tag commit _; do
+while read -r tag commit _; do
   commit_current="$(git show-ref --hash --tags "refs/tags/${tag}" || true)"
   if [ "${commit_current}" == "${commit}" ]; then
     echo "INFO[${SCRIPT}]: Tag '${tag}' already point to commit '${commit}'; skipping"
@@ -48,7 +48,7 @@ grep -vE '^\s*(#|$)' ./TAGS | while read tag commit _; do
   fi
   git tag --force "${tag}" "${commit}"
   tagged=$(( tagged+1 ))
-done
+done < <(grep -vE '^\s*(#|$)' ./TAGS)
 
 # Push updated tags
 if [ "${tagged}" -gt 0 ]; then
