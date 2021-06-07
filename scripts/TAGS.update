@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -o pipefail
 SCRIPT="${0##*/}"
-trap "ERROR[${SCRIPT}]: Internal error" ERR
+trap "echo 'ERROR[${SCRIPT}]: Internal error' >&2" ERR
 
 ## Usage
 __USAGE() {
@@ -28,7 +28,8 @@ fi
 ## Main
 
 # TAGS changed ?
-if [ -z "$(git diff --name-only "${TAGS_COMMIT}~1" "${TAGS_COMMIT}" -- ./TAGS)" ]; then
+changed="$(git diff --name-only "${TAGS_COMMIT}^-" -- ./TAGS)"
+if [ -z "${changed}" ]; then
   echo "INFO[${SCRIPT}]: No TAGS change detected; bailing out"
   exit 0
 fi

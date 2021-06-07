@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -o pipefail
 SCRIPT="${0##*/}"
-trap "ERROR[${SCRIPT}]: Internal error" ERR
+trap "echo 'ERROR[${SCRIPT}]: Internal error' >&2" ERR
 
 # git config
 # REFS:
