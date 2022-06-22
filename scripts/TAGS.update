@@ -25,6 +25,16 @@ else
   exit 1
 fi
 
+
+## Quirks
+
+# FIX: "error: Could not access '<commit>^-'" in GitHub Actions
+git config --global --add safe.directory /github/workspace
+
+# Debug
+#git log --pretty=oneline | head -n 10 || true
+
+
 ## Main
 
 # TAGS changed ?
